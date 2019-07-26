@@ -1,6 +1,7 @@
 import sys
 import os
 from PIL import Image
+import filecmp
 
 path = sys.argv[1]
 
@@ -29,7 +30,15 @@ for root, subdirs, files in os.walk(path):
             new_location = os.path.join(use_dir, f)
             if full == new_location:
                 continue
+            if os.path.isfile(new_location):
+                if filecmp.cmp(full, new_location):
+                    print new_location + ' already exists - SAME FILE - deleting'
+                    os.remove(full)
+                else:
+                    print new_location + ' already exists - DIFFERENT FILE'
+                continue
             print full + ' -> ' + new_location
             os.rename(full, new_location)
         except IOError as e:
+            print full
             print e
