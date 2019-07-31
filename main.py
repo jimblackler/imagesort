@@ -1,3 +1,4 @@
+import re
 import sys
 import os
 from PIL import Image
@@ -34,9 +35,20 @@ for root, subdirs, files in os.walk(path):
                 if filecmp.cmp(full, new_location):
                     print new_location + ' already exists - SAME FILE - deleting'
                     os.remove(full)
+                    continue
                 else:
                     print new_location + ' already exists - DIFFERENT FILE'
-                continue
+                    while True:
+                        result = re.search(r"\((\d+)\)", f)
+                        if result:
+                            number_string = result.group(1)
+                            existing_number = int(number_string)
+                            f = f.replace('(' + number_string + ')', '(' + str(existing_number + 1) + ')')
+                        else:
+                            f = f.replace('.', '(1).')
+                        new_location = os.path.join(use_dir, f)
+                        if not os.path.isfile(new_location):
+                            break
             print full + ' -> ' + new_location
             os.rename(full, new_location)
         except IOError as e:
